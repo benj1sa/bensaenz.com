@@ -6,7 +6,10 @@ title: writing
 {%- set items = [] -%}
 {%- set localTitles = [] -%}
 {%- for p in collections.posts -%}
+  {#- hidden posts are skipped here and also kept out of the Substack list below -#}
+  {%- if not p.data.hidden -%}
   {%- set items = (items.push({ title: p.data.title, link: p.url, date: p.date }), items) -%}
+  {%- endif -%}
   {%- set localTitles = (localTitles.push(p.data.title | lower), localTitles) -%}
 {%- endfor -%}
 {%- for s in substack -%}

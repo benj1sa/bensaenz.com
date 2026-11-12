@@ -61,7 +61,8 @@ After that: push to publish; new posts/books appear by the next morning, or hit
     Only books you've marked public on Hardcover show up.
   - Keys expire every **January 1st**: update `.env` and the GitHub secret then.
   - Filters: **all**, **read**, **loved** (rated 5 stars; change `LOVED_RATING` in `lib/hardcover.js`),
-    **want to read**. Each book links to its Hardcover page.
+    **want to read**. Each book links to its Goodreads page (via the Goodreads id Hardcover saved
+    when you imported; falls back to Goodreads' ISBN lookup, then a Goodreads search).
   - If Hardcover is down during a GitHub build, the build stops on purpose so the last good version
     stays live. Locally it just warns.
 - **Substack:** reads `<your substack>/feed`; posts link out to Substack.

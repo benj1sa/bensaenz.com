@@ -65,12 +65,16 @@ export default function (eleventyConfig) {
     if (!files.length) return "";
     const descFile = path.join(dir, "descriptions.json");
     const descriptions = fs.existsSync(descFile) ? JSON.parse(fs.readFileSync(descFile, "utf8")) : {};
+    // Optional visible captions, shown under each photo: captions.json next to the photos
+    const capFile = path.join(dir, "captions.json");
+    const captions = fs.existsSync(capFile) ? JSON.parse(fs.readFileSync(capFile, "utf8")) : {};
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const items = await Promise.all(files.map(async (f) => {
       const meta = await optimize(path.join(dir, f), [400, 800]);
       return `<div class="gallery-photo">${Image.generateHTML(meta, {
         alt: describe(f, descriptions), sizes: "(max-width: 600px) 50vw, (max-width: 900px) 30vw, 18rem",
         loading: "lazy", decoding: "async",
-      })}</div>`;
+      })}${captions[f] ? `<p class="gallery-caption">${esc(captions[f])}</p>` : ""}</div>`;
     }));
     return `<div class="gallery">${items.join("")}</div>`;
   });

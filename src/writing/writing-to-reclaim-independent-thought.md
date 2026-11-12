@@ -1,5 +1,6 @@
 ---
 title: writing to reclaim independent thought
+hidden: true   # remove this line to publish it again
 date: 2026-01-10
 category: Lifestyle
 substack: https://bsaenz.substack.com/p/writing-to-reclaim-independent-thought
