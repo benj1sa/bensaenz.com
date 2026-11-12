@@ -1,0 +1,13 @@
+---
+layout: base.njk
+section: work
+---
+<article class="prose">
+  <h1 class="page-title">{{ title }}</h1>
+  <p class="entry-meta">{{ summary }}</p>
+  <p class="entry-meta">{{ years }}{% if category %} · {{ category }}{% endif %}</p>
+  {{ content | safe }}
+  {%- if website %}
+  <p><a href="{{ website }}">Visit website</a></p>
+  {%- endif %}
+</article>

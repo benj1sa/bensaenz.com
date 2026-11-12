@@ -1,0 +1,11 @@
+node_modules/
+_site/
+.cache/
+.wrangler/
+.env
+# videos are too big for git; the site ignores them for now
+*.mov
+*.MOV
+*.mp4
+# full-size originals (with location data) stay on your computer only
+_originals/

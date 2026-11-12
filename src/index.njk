@@ -1,0 +1,17 @@
+---
+layout: base.njk
+---
+<h1 class="visually-hidden">About {{ site.name }}</h1>
+<div class="about-body">
+  {% homePhoto site.photoAlt %}
+  <div class="about-bio">
+    <p>Hello, my name is Ben. I'm currently studying computer engineering at University of Maryland.</p>
+    <p>I'm currently spending my time supporting underrepresented students build fulfilling lives and careers. I am running experiments on my own life and exporing many different paths which have included computational astrophysics to remote healthcare monitoring.</p>
+    <p>Outside of work I love meditating, snowboarding, and running.</p>
+    <p>I write <a href="{{ site.substack }}">here</a>.</p>
+    <p><a href="/about/more/">More about me</a>.</p>
+    {%- if assets.signature %}
+    <div class="signature" role="img" aria-label="{{ site.name }}'s signature" style="--sig-ratio: {{ assets.signatureRatio }}"></div>
+    {%- endif %}
+  </div>
+</div>

@@ -1,0 +1,12 @@
+---
+layout: base.njk
+---
+<article class="prose post">
+  <h1 class="page-title">{{ title }}</h1>
+  <p class="entry-meta">{{ page.date | longDate }}{% if category %} · {{ category }}{% endif %}</p>
+  {{ content | safe }}
+  {%- if substack %}
+  <p class="entry-meta">Also on <a href="{{ substack }}">Substack</a>.</p>
+  {%- endif %}
+  <p class="post-back"><a href="/writing/">← all writing</a></p>
+</article>

@@ -1,0 +1,19 @@
+{
+  "name": "bensaenz-com",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy",
+    "deploy": "eleventy && wrangler deploy"
+  },
+  "dependencies": {
+    "@11ty/eleventy": "^3.1.2",
+    "@11ty/eleventy-fetch": "^5.1.0",
+    "@11ty/eleventy-img": "^6.0.4",
+    "fast-xml-parser": "^5.2.5"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

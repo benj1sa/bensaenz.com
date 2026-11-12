@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} · {% endif %}{{ site.name }}</title>
+  <meta name="description" content="{{ site.description }}">
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+  <link rel="preload" href="/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/style.css">
+  <!-- apply saved theme before paint so there's no flash -->
+  <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script src="/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-bar">
+    <a class="site-bar-name" href="/">{{ site.name }}</a>
+  </header>
+
+  <button class="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">
+    <span></span><span></span>
+  </button>
+  <button class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode">
+    <span class="theme-toggle-knob"></span>
+  </button>
+
+  <nav id="site-nav" class="site-nav" aria-label="Site">
+    <ul>
+      {%- for s in site.sections %}
+      <li><a href="{{ s.href }}"{% if page.url == s.href %} aria-current="page"{% elif section == s.label %} aria-current="true"{% endif %}>{{ s.label }}</a></li>
+      {%- endfor %}
+    </ul>
+    <ul class="links">
+      {%- for l in site.links %}
+      <li><a href="{{ l.href }}" target="_blank" rel="noopener noreferrer">{{ l.label }}</a></li>
+      {%- endfor %}
+      <li><button class="contact-btn" aria-expanded="false" aria-controls="contact-email">contact</button></li>
+      <li id="contact-email" hidden>
+        <button class="copy-email" data-user="{{ site.email.user }}" data-domain="{{ site.email.domain }}">
+          <span class="copy-email-text"></span>
+          <svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h.5"/></svg>
+          <svg class="icon-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>
+        </button>
+        <span class="visually-hidden" aria-live="polite"></span>
+      </li>
+    </ul>
+  </nav>
+
+  <main id="main">
+{{ content | safe }}
+  </main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+---
+layout: base.njk
+title: writing
+---
+{#- Posts written on this site (src/writing/*.md), plus Substack posts that aren't already here. -#}
+{%- set items = [] -%}
+{%- set localTitles = [] -%}
+{%- for p in collections.posts -%}
+  {%- set items = (items.push({ title: p.data.title, link: p.url, date: p.date }), items) -%}
+  {%- set localTitles = (localTitles.push(p.data.title | lower), localTitles) -%}
+{%- endfor -%}
+{%- for s in substack -%}
+  {%- if not (s.title | lower) in localTitles -%}
+  {%- set items = (items.push({ title: s.title, link: s.link, date: s.date }), items) -%}
+  {%- endif -%}
+{%- endfor %}
+<h1 class="visually-hidden">Writing</h1>
+{% if items.length %}
+<ul class="posts">
+  {%- for post in items | sort(true, false, "date") %}
+  <li><a href="{{ post.link }}">{{ post.title }}</a> <span class="entry-meta">· {{ post.date | longDate }}</span></li>
+  {%- endfor %}
+</ul>
+{% else %}
+<p>Posts coming soon.</p>
+{% endif %}
+<p class="entry-meta posts-more">More on <a href="{{ site.substack }}">Substack</a>.</p>

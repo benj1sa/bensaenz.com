@@ -1,0 +1,28 @@
+---
+layout: base.njk
+title: work
+---
+{%- set all = [] -%}
+{%- for s in work.sections %}{% for e in s.entries %}{% set all = (all.push(e), all) %}{% endfor %}{% endfor -%}
+<h1 class="visually-hidden">Work</h1>
+<div class="prose">
+<div class="filters" role="group" aria-label="Filter work by category" hidden>
+  <button type="button" data-filter="all" aria-pressed="true">all <span class="count">{{ all.length }}</span></button>
+  {%- for c in work.categories %}
+  {%- set n = 0 %}{% for e in all %}{% if c in e.tags %}{% set n = n + 1 %}{% endif %}{% endfor %}
+  {%- if n > 0 %}
+  <button type="button" data-filter="{{ c }}" aria-pressed="false">{{ c }} <span class="count">{{ n }}</span></button>
+  {%- endif %}
+  {%- endfor %}
+</div>
+<p class="visually-hidden" aria-live="polite" data-filter-status></p>
+
+{%- for s in work.sections %}
+<section class="section">
+  <h2>{{ s.heading }}</h2>
+  {%- for e in s.entries %}
+  <p data-tags="all {{ e.tags | join(' ') }}"><span class="entry-title">{% if e.link %}<a href="{{ e.link }}">{{ e.title }}</a>{% else %}{{ e.title }}{% endif %}</span>{% if e.years %} <span class="entry-meta">({{ e.years }})</span>{% endif %}</p>
+  {%- endfor %}
+</section>
+{%- endfor %}
+</div>

@@ -1,0 +1,249 @@
+/* ---------- font (self-hosted, so it always loads) ---------- */
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans.woff2") format("woff2-variations"), url("/fonts/dm-sans.woff2") format("woff2");
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- colors ----------
+   Change a color here and it changes everywhere. Second value is dark mode. */
+:root {
+  color-scheme: light dark;
+  --bg:        light-dark(#faf9f6, #1a1a1a);
+  --text:      light-dark(#1c1c1a, #f2f1ed);              /* name, headings */
+  --body:      light-dark(rgb(51, 51, 51), rgba(255, 255, 255, .75));   /* bio and page text */
+  --dim:       light-dark(rgb(170, 170, 170), rgba(255, 255, 255, .4)); /* nav + filters, default */
+  --hover:     light-dark(rgb(0, 0, 0), rgb(255, 255, 255));            /* nav + filters, hover/current */
+  --underline: light-dark(rgb(187, 187, 187), rgba(255, 255, 255, .3)); /* link underlines */
+  --rule:      light-dark(rgba(0, 0, 0, .08), rgba(255, 255, 255, .1));
+
+  /* spacing measured from elizabethqiu.com */
+  --inset: 3rem;                                          /* page edge padding */
+  --line: calc(.875rem * 1.9);                            /* one line of text (26.6px) */
+  --bar-clear: calc(var(--inset) + var(--line) + 2rem);   /* top of nav/content (106.6px) */
+  --nav-width: 11rem;
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-optical-sizing: auto;
+  font-size: .875rem;
+  line-height: 1.9;
+}
+
+a { color: inherit; }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { left: 1rem; top: 1rem; z-index: 2000; background: var(--bg); padding: .25rem .5rem; }
+
+/* ---------- top bar ---------- */
+.site-bar {
+  position: fixed; inset: 0 0 auto 0; z-index: 999;
+  padding: var(--inset) var(--inset) 1rem;
+  background: var(--bg);
+}
+.site-bar-name { font-weight: 500; letter-spacing: .01em; text-decoration: none; }
+
+/* ---------- dark-mode switch ---------- */
+.theme-toggle {
+  position: fixed; z-index: 1000;
+  top: calc(var(--inset) + var(--line) / 2 - .575rem); right: var(--inset);
+  width: 2.1rem; height: 1.15rem; padding: 0;
+  border-radius: 999px; cursor: pointer;
+  background: light-dark(rgba(0,0,0,.08), rgba(255,255,255,.14));
+  border: 1px solid light-dark(rgba(0,0,0,.12), rgba(255,255,255,.18));
+}
+.theme-toggle-knob {
+  display: block; width: .75rem; height: .75rem; border-radius: 50%;
+  background: light-dark(#4a4a46, #e8e6e1);
+  transform: translateX(.12rem); transition: transform .2s;
+}
+.theme-toggle[aria-checked="true"] .theme-toggle-knob { transform: translateX(1.08rem); }
+
+/* ---------- side nav ---------- */
+.site-nav {
+  position: fixed; z-index: 998;
+  top: var(--bar-clear); left: var(--inset);
+  width: var(--nav-width);
+  display: flex; flex-direction: column; gap: 2rem;
+}
+.site-nav ul { list-style: none; margin: 0; padding: 0; }
+.site-nav a, .site-nav button {
+  display: block; line-height: var(--line);   /* one 26.6px row per item, like hers */
+  color: var(--dim); text-decoration: none; transition: color .15s;
+}
+.site-nav a:hover, .site-nav button:hover,
+.site-nav a[aria-current], .contact-btn[aria-expanded="true"] { color: var(--hover); }
+
+/* contact: reveals the email below; clicking the email copies it */
+.contact-btn, .copy-email {
+  appearance: none; background: none; border: 0; padding: 0;
+  font: inherit; text-align: left; cursor: pointer;
+}
+.site-nav .copy-email { display: flex; align-items: center; gap: .4rem; white-space: nowrap; }
+.copy-email svg { width: .8rem; height: .8rem; flex: none; opacity: 0; transition: opacity .15s; }
+.copy-email:hover svg, .copy-email:focus-visible svg, .copy-email.is-copied svg { opacity: 1; }
+.copy-email .icon-check { display: none; }
+.copy-email.is-copied .icon-copy { display: none; }
+.copy-email.is-copied .icon-check { display: block; }
+
+/* hamburger: hidden on desktop */
+.nav-toggle { display: none; }
+
+/* ---------- main content ---------- */
+main {
+  margin-left: calc(var(--inset) + var(--nav-width));   /* content starts at 272px, like hers */
+  padding: var(--bar-clear) var(--inset) var(--inset);
+  color: var(--body);
+}
+main p { margin: 0 0 1em; }
+main a { text-decoration: underline; text-decoration-color: var(--underline); text-underline-offset: .2em; transition: text-decoration-color .15s; }
+main a:hover { text-decoration-color: currentColor; }
+.prose { max-width: 52rem; }
+
+/* section headings (now / work / projects, More about me) */
+.section + .section { margin-top: 2.5em; }
+.section h2 { font: inherit; color: var(--dim); margin: 0 0 1em; }
+.section h3 { font: inherit; font-style: italic; margin: 0 0 .35em; }
+.section ul { margin: 0; padding-left: 1.25em; }
+.section .group + .group { margin-top: 1.25em; }
+.entry-title { font-weight: 500; color: var(--text); }
+.entry-meta { color: var(--dim); }
+
+/* about */
+.about-body { display: flex; gap: 3rem; align-items: flex-start; }
+.about-body > picture { flex: 0 0 auto; width: min(18rem, 100%); }
+.about-photo {
+  width: 100%; height: auto; aspect-ratio: 3 / 4;
+  object-fit: cover; display: block; background: var(--rule);
+  filter: grayscale(1); transition: filter .4s;   /* black and white until hovered, like hers */
+}
+.about-photo:hover, .about-photo.is-color { filter: none; }
+
+/* photo grid on More about me: drop photos in src/photos/<folder>/ */
+.gallery { columns: 3; column-gap: .75rem; margin-top: 2.5em; }
+.gallery-photo { break-inside: avoid; margin-bottom: .75rem; }
+.gallery-photo img { display: block; width: 100%; height: auto; border-radius: 6px; }
+.about-bio { flex: 1 1 0; min-width: 0; max-width: 52rem; }
+.about-bio p:last-of-type { margin-bottom: 0; }
+.signature {   /* drawn in tools/signature.html; follows the text color, so it works in dark mode */
+  width: min(13rem, 60%); aspect-ratio: var(--sig-ratio, 1000 / 438); margin-top: 1.5rem;
+  background-color: var(--hover);
+  -webkit-mask: url("/signature.svg") center / contain no-repeat;
+          mask: url("/signature.svg") center / contain no-repeat;
+}
+
+/* ---------- category filters (reading, work) ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin-bottom: 2.5em; }
+.filters[hidden] { display: none; }
+.filters button {
+  appearance: none; background: none; border: 0; padding: 0;
+  font: inherit; color: var(--dim); cursor: pointer; transition: color .15s;
+}
+.filters button:hover, .filters button[aria-pressed="true"] { color: var(--hover); }
+.count { color: var(--underline); font-variant-numeric: tabular-nums; }
+[data-tags][hidden], .section[hidden] { display: none; }
+
+/* ---------- bookshelf ---------- */
+.bookshelf {
+  --cover-h: 9.5rem; --cover-w: calc(var(--cover-h) * 2 / 3);
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, var(--cover-w));
+  grid-auto-rows: var(--cover-h); gap: 2rem 1rem;
+}
+.book {
+  position: relative;
+  display: flex; flex-direction: column; justify-content: space-between;
+  height: 100%; padding: .6rem .5rem; overflow: hidden;
+  font-size: .7rem; line-height: 1.3; text-decoration: none;
+  color: var(--text);
+  background: light-dark(#e9e5dc, #2a2a2a); border-radius: 1px 3px 3px 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.12); transition: transform .2s;
+}
+main a.book { text-decoration: none; }
+.book:hover, .book:focus-visible { transform: translateY(-.5rem); }
+.book img { /* cover sits on top of the title card; if it fails to load, the card shows */
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: inherit; background: inherit;
+}
+.book.is-reading::before { /* little red bookmark on what you're reading now */
+  content: ""; position: absolute; top: -.5rem; right: .6rem; z-index: 1;
+  width: .4rem; height: 1.3rem; background: #c4473a;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+}
+.book-title { font-weight: 500; }
+.book-author { color: var(--dim); }
+
+/* posts and project pages */
+.page-title { font: inherit; font-weight: 500; color: var(--text); margin: 0 0 .25em; }
+.post .entry-meta:first-of-type, article .entry-meta { margin-bottom: 1em; }
+.post h2 { font: inherit; color: var(--text); margin: 2em 0 .5em; }
+.post ul { padding-left: 1.25em; }
+.post-back { margin-top: 2.5em; }
+.posts-more { margin-top: 2em; }
+
+/* writing */
+.posts { list-style: none; margin: 0; padding: 0; }
+.posts li + li { margin-top: .25em; }
+
+/* ---------- mobile: hamburger menu ---------- */
+@media (max-width: 760px) {
+  .nav-toggle {
+    position: fixed; z-index: 1000;
+    top: calc(var(--inset) + var(--line) / 2 - 1.375rem);
+    right: calc(var(--inset) + 2.6rem);
+    width: 2.75rem; height: 2.75rem; padding: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem;
+    background: none; border: 0; color: inherit; cursor: pointer;
+  }
+  .nav-toggle span { display: block; width: 1.25rem; height: 1.5px; background: currentColor; transition: transform .2s; }
+  .nav-toggle[aria-expanded="true"] span:first-child { transform: translateY(calc(.75px + .175rem)) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span:last-child  { transform: translateY(calc(-.75px - .175rem)) rotate(-45deg); }
+
+  /* nav becomes a panel that drops down under the bar */
+  .site-nav {
+    display: none;
+    top: 0; left: 0; right: 0; width: auto;
+    max-height: 100dvh; overflow-y: auto;
+    padding: var(--bar-clear) var(--inset) 1.5rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+  }
+  .site-nav.is-open { display: flex; }
+
+  main { margin-left: 0; }
+  .about-body { flex-direction: column; gap: 2rem; }
+  .about-body > picture { width: min(22rem, 100%); }
+  .about-bio { max-width: none; }
+}
+@media (max-width: 900px) { .gallery { columns: 2; } }
+
+@media (max-width: 600px) {
+  :root { --inset: 1.5rem; }
+  .site-bar { padding: var(--inset) 1rem .75rem; }
+  .theme-toggle { right: 1rem; }
+  .nav-toggle { right: 3.35rem; }
+  .site-nav, main { padding-left: 1rem; padding-right: 1rem; }
+  .bookshelf { --cover-h: 7.5rem; gap: 1.5rem .6rem; }
+  .gallery { column-gap: .5rem; }
+  .gallery-photo { margin-bottom: .5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

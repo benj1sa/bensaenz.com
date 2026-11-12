@@ -1,0 +1,170 @@
+<!doctype html>
+<!--
+  Signature pad for bensaenz.com. Not part of the website (it lives outside src/).
+  Open this file in your browser (double-click it), sign, then "Save signature.svg"
+  and put the file in src/assets/. The about page picks it up automatically.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signature pad</title>
+<style>
+  body { margin: 0; font: 14px/1.9 "DM Sans", system-ui, sans-serif; background: #faf9f6; color: #1c1c1a; }
+  .wrap { max-width: 56rem; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { font: inherit; font-weight: 500; margin: 0; }
+  p { color: #555; margin: 0 0 1rem; }
+  canvas { display: block; width: 100%; height: 18rem; background: #fff; border: 1px solid #ddd; border-radius: 6px; touch-action: none; cursor: crosshair; }
+  .row { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; margin: 1rem 0; }
+  button { font: inherit; padding: .35rem .9rem; border: 1px solid #ccc; border-radius: 999px; background: #fff; cursor: pointer; }
+  button.primary { background: #1c1c1a; color: #fff; border-color: #1c1c1a; }
+  button:disabled { opacity: .4; cursor: default; }
+  label { color: #555; }
+  .previews { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .preview { flex: 1 1 14rem; padding: 1.5rem; border-radius: 6px; }
+  .preview.light { background: #faf9f6; border: 1px solid #eee; }
+  .preview.dark { background: #1a1a1a; }
+  .preview div { width: min(13rem, 100%); aspect-ratio: 3 / 1; background: #000; -webkit-mask: center / contain no-repeat; mask: center / contain no-repeat; }
+  .preview.dark div { background: #fff; }
+  .hint { font-size: 12px; color: #888; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Signature pad</h1>
+  <p>Sign in the box with your trackpad, mouse, or a stylus. Pen pressure is used if you have it.</p>
+
+  <canvas id="pad" aria-label="Signature drawing area"></canvas>
+
+  <div class="row">
+    <button id="undo" disabled>Undo</button>
+    <button id="clear" disabled>Clear</button>
+    <label>Thickness <input id="size" type="range" min="1.5" max="7" step="0.5" value="3.5"></label>
+    <button id="save" class="primary" disabled>Save signature.svg</button>
+  </div>
+
+  <p class="hint">Preview on your site, light and dark mode:</p>
+  <div class="previews">
+    <div class="preview light"><div id="pv1"></div></div>
+    <div class="preview dark"><div id="pv2"></div></div>
+  </div>
+  <p class="hint" style="margin-top:1rem">Then move the downloaded <b>signature.svg</b> into <b>src/assets/</b> and run <b>npm start</b>.</p>
+</div>
+
+<script>
+const canvas = document.getElementById('pad');
+const ctx = canvas.getContext('2d');
+const size = document.getElementById('size');
+const strokes = [];       // each stroke: [{x, y, w}]
+let current = null, last = null;
+
+function fit() {
+  const r = canvas.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+  canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  redraw();
+}
+
+// width from pen pressure if available, otherwise from speed (faster = thinner, like ink)
+function widthFor(e, p) {
+  const base = Number(size.value);
+  if (e.pointerType === 'pen' && e.pressure > 0) return base * (0.35 + e.pressure * 1.1);
+  if (!last) return base;
+  const dt = Math.max(e.timeStamp - last.t, 1);
+  const speed = Math.hypot(p.x - last.x, p.y - last.y) / dt;   // px per ms
+  const target = base * Math.max(0.45, Math.min(1.3, 1.3 - speed * 0.35));
+  return last.w * 0.7 + target * 0.3;                            // smooth width changes
+}
+
+function point(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  canvas.setPointerCapture(e.pointerId);
+  const p = point(e); last = null;
+  p.w = widthFor(e, p); last = { ...p, t: e.timeStamp };
+  current = [p]; strokes.push(current); redraw(); update();
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (!current) return;
+  for (const ev of (e.getCoalescedEvents?.() || [e])) {
+    const p = point(ev);
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 1) continue;
+    p.w = widthFor(ev, p); last = { ...p, t: ev.timeStamp };
+    current.push(p);
+  }
+  redraw();
+});
+const end = () => { if (current) { current = null; update(); } };
+canvas.addEventListener('pointerup', end);
+canvas.addEventListener('pointercancel', end);
+
+// Turn a stroke into a filled outline path (smooth, variable width).
+function outline(s) {
+  if (s.length === 1) {
+    const { x, y, w } = s[0], r = w / 2;
+    return `M${x - r} ${y}a${r} ${r} 0 1 0 ${w} 0a${r} ${r} 0 1 0 ${-w} 0Z`;
+  }
+  const left = [], right = [];
+  for (let i = 0; i < s.length; i++) {
+    const a = s[Math.max(0, i - 1)], b = s[Math.min(s.length - 1, i + 1)];
+    let dx = b.x - a.x, dy = b.y - a.y; const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len * s[i].w / 2, ny = dx / len * s[i].w / 2;
+    left.push([s[i].x + nx, s[i].y + ny]); right.push([s[i].x - nx, s[i].y - ny]);
+  }
+  const pts = [...left, ...right.reverse()];
+  const f = (n) => Math.round(n * 10) / 10;
+  let d = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+  for (let i = 1; i < pts.length; i++) {           // curve through midpoints
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+    d += `Q${f(x0)} ${f(y0)} ${f((x0 + x1) / 2)} ${f((y0 + y1) / 2)}`;
+  }
+  // round caps at both ends
+  const cap = (p) => { const r = p.w / 2; return `M${f(p.x - r)} ${f(p.y)}a${f(r)} ${f(r)} 0 1 0 ${f(p.w)} 0a${f(r)} ${f(r)} 0 1 0 ${f(-p.w)} 0Z`; };
+  return d + 'Z' + cap(s[0]) + cap(s[s.length - 1]);
+}
+
+function redraw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#1c1c1a';
+  for (const s of strokes) ctx.fill(new Path2D(outline(s)));
+}
+
+function svg() {
+  const pad = 8;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const s of strokes) for (const p of s) {
+    minX = Math.min(minX, p.x - p.w); minY = Math.min(minY, p.y - p.w);
+    maxX = Math.max(maxX, p.x + p.w); maxY = Math.max(maxY, p.y + p.w);
+  }
+  const w = Math.ceil(maxX - minX + pad * 2), h = Math.ceil(maxY - minY + pad * 2);
+  const d = strokes.map(outline).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">` +
+    `<g transform="translate(${Math.round(pad - minX)} ${Math.round(pad - minY)})"><path fill="#000" fill-rule="nonzero" d="${d}"/></g></svg>`;
+}
+
+function update() {
+  const has = strokes.length > 0;
+  for (const id of ['undo', 'clear', 'save']) document.getElementById(id).disabled = !has;
+  const url = has ? `url("data:image/svg+xml,${encodeURIComponent(svg())}")` : 'none';
+  for (const id of ['pv1', 'pv2']) {
+    const el = document.getElementById(id);
+    el.style.maskImage = el.style.webkitMaskImage = url;
+  }
+}
+
+document.getElementById('undo').onclick = () => { strokes.pop(); redraw(); update(); };
+document.getElementById('clear').onclick = () => { strokes.length = 0; redraw(); update(); };
+document.getElementById('save').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([svg()], { type: 'image/svg+xml' }));
+  a.download = 'signature.svg'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+addEventListener('resize', fit);
+fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Builds and deploys on every push, and once a day so new Substack posts
+# and Goodreads books show up without you touching anything.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 9 * * *"   # daily, ~4-5am Eastern
+  workflow_dispatch:        # "Run workflow" button for a manual refresh
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx @11ty/eleventy
+      - run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

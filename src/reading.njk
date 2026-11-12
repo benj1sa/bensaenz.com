@@ -1,0 +1,37 @@
+---
+layout: base.njk
+title: reading
+---
+{%- set counts = { all: books.length, read: 0, loved: 0, want: 0 } -%}
+{%- for b in books -%}
+  {%- if b.shelf == "read" %}{% set counts = counts | setAttr("read", counts.read + 1) %}{% endif -%}
+  {%- if b.loved %}{% set counts = counts | setAttr("loved", counts.loved + 1) %}{% endif -%}
+  {%- if b.shelf == "to-read" %}{% set counts = counts | setAttr("want", counts.want + 1) %}{% endif -%}
+{%- endfor %}
+<h1 class="visually-hidden">Reading</h1>
+{% if books.length %}
+<!-- shown by site.js; without JavaScript every book is listed -->
+<div class="filters" role="group" aria-label="Filter books" hidden>
+  <button type="button" data-filter="all" aria-pressed="true">all <span class="count">{{ counts.all }}</span></button>
+  <button type="button" data-filter="read" aria-pressed="false">read <span class="count">{{ counts.read }}</span></button>
+  <button type="button" data-filter="loved" aria-pressed="false">loved <span class="count">{{ counts.loved }}</span></button>
+  <button type="button" data-filter="want" aria-pressed="false">want to read <span class="count">{{ counts.want }}</span></button>
+</div>
+<p class="visually-hidden" aria-live="polite" data-filter-status></p>
+
+<ul class="bookshelf" aria-label="Books">
+  {%- for book in books %}
+  <li data-tags="all{% if book.shelf == 'read' %} read{% endif %}{% if book.loved %} loved{% endif %}{% if book.shelf == 'to-read' %} want{% endif %}">
+    <a class="book{% if book.shelf == 'currently-reading' %} is-reading{% endif %}" href="{{ book.link }}">
+      <span class="book-title">{{ book.title }}</span>
+      <span class="book-author">{{ book.author }}{% if book.shelf == 'currently-reading' %}<span class="visually-hidden"> (currently reading)</span>{% endif %}</span>
+      {%- if book.cover %}
+      <img src="{{ book.cover }}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+      {%- endif %}
+    </a>
+  </li>
+  {%- endfor %}
+</ul>
+{% else %}
+<p>Shelf coming soon.</p>
+{% endif %}
