@@ -17,21 +17,21 @@ building software to support underrepresented students in stem, looking for my n
 <section class="section">
 <h2>my past</h2>
 
-a year of computational astrophysics. a company with four friends through the do good accelerator (we raised $2,000). an agentic knowledge layer at comcast. founding engineer at a healthcare startup through mit ai venture studio x harvard innovation labs.
+3 years of computational astrophysics. a company with four friends through the do good accelerator (we raised $2,000). an agentic and ci/cd tooling at comcast. founding engineer at a healthcare startup through mit ai venture studio x harvard innovation labs.
 
 </section>
 
 <section class="section">
 <h2>my future</h2>
 
-keep working on fun, high-impact problems. make many friends, and help many more people find their way.
+keep working on fulfilling, high-impact problems. meet many people, and help many more find their way.
 
 </section>
 
 <section class="section">
 <h2>people</h2>
 
-I've spent four years in College Success Scholars, from scholar to team leader to program coordinator. I like helping people find their way. Somewhere along the way I realized it helps me find mine.
+I've spent four years in College Success Scholars starting as a scholar to team leader to program coordinator. I like helping people find their way. Somewhere along the way I realized it helps me find mine.
 
 </section>
 
